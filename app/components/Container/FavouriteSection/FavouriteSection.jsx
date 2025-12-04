@@ -9,9 +9,11 @@ import { EmptyFavorites, FavoritesLoading } from "@/app/common/Animation";
 import { errorAlert, successAlert } from "@/app/utils/alertService";
 import CustomImage from "@/app/common/Image";
 import { addGuestCartItem, addOrUpdateCartItem } from "@/app/store/slice/cartSlice";
-
+import { useRouter } from "next/navigation";
 const FavouritesSection = () => {
+    const router = useRouter();
     const dispatch = useDispatch();
+
     const guestId = useGuestId();
     const { accessToken } = useSelector((state) => state.auth);
     const { message, error, getLoading, favorites } = useSelector((state) => state.myfavourite)
@@ -87,10 +89,12 @@ const FavouritesSection = () => {
             {!getLoading && !isEmpty && (
                 <div className="w-full bg-white border border-gray-200  shadow-sm">
                     <div className="p-4 border-b border-gray-300">
-                        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-3">
-                            <Link href={"/"} className="text-gray-700">
+                        <h2 className="text-xl cursor-pointer font-semibold text-gray-900 flex items-center gap-3">
+                            <button
+                                onClick={() => router.back()}
+                                className="text-gray-700">
                                 ←
-                            </Link>
+                            </button>
                             My Favourites
                         </h2>
                     </div>
@@ -100,7 +104,7 @@ const FavouritesSection = () => {
                             product?.variants?.[0]?.variantImages?.[0] ||
                             product?.productImages?.[0] ||
                             "/no-image.png";
-
+                        const variant = product?.variants?.[0];
                         return (
                             <div
                                 key={item?._id}
@@ -119,19 +123,19 @@ const FavouritesSection = () => {
                                     </h3>
                                     <div className="flex items-center gap-2 mt-2 text-[15px]">
                                         <span className="font-semibold text-green-600">
-                                            ₹{product?.price || product?.variants.price}
+                                            ₹{variant?.offerPrice || variant?.price}
                                         </span>
-                                        <span className="line-through text-gray-400">
-                                            ₹{product?.offerPrice}
-                                        </span>
-                                        <span className="text-green-600 text-sm font-medium">
-                                            {Math.floor(
-                                                ((product?.price - product?.offerPrice) /
-                                                    product?.price) *
-                                                100
-                                            )}
-                                            % off
-                                        </span>
+
+                                        {variant?.offerPrice && (
+                                            <>
+                                                <span className="line-through text-gray-400">
+                                                    ₹{variant?.price}
+                                                </span>
+                                                <span className="text-green-600 text-sm font-medium">
+                                                    {Math.floor(((variant.price - variant.offerPrice) / variant.price) * 100)}% off
+                                                </span>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className="flex items-center gap-1 bg-green-600 text-white text-xs px-2 py-1 rounded-md">
